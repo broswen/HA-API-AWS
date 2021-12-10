@@ -9,8 +9,6 @@ export interface RDSSecret {
 }
 
 const smClient: SecretsManagerClient = new SecretsManagerClient({})
-
-
 export async function getRDSSecret(arn: string): Promise<RDSSecret> {
   const getSecretInput: GetSecretValueCommandInput = {
     SecretId: arn

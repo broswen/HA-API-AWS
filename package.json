@@ -1,0 +1,28 @@
+{
+  "name": "ha-api-aws",
+  "version": "1.0.0",
+  "description": "Highly-Available REST API in AWS",
+  "scripts": {
+    "start": "npx serverless offline",
+    "lint": "eslint . --ext .ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "broswen",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.86",
+    "@types/node": "^16.11.12",
+    "@typescript-eslint/eslint-plugin": "^5.6.0",
+    "@typescript-eslint/parser": "^5.6.0",
+    "eslint": "^8.4.1",
+    "serverless-offline": "^8.3.1",
+    "serverless-plugin-typescript": "^2.1.0",
+    "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.44.0",
+    "@aws-sdk/client-s3": "^3.44.0",
+    "@aws-sdk/client-secrets-manager": "^3.43.0",
+    "@aws-sdk/client-sns": "^3.43.0"
+  }
+}

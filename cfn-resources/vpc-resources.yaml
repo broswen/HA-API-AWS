@@ -1,0 +1,78 @@
+Resources:
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Lambda to RDS Postgres
+      VpcId: ${file(./serverless.${opt:stage, self:provider.stage, "dev"}.yaml):vpc}
+
+  LambdaSecurityGroupEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !GetAtt LambdaSecurityGroup.GroupId
+      DestinationSecurityGroupId: !GetAtt PostgresSecurityGroup.GroupId
+      IpProtocol: "-1"
+
+  LambdaSecurityGroupEgress2:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !GetAtt LambdaSecurityGroup.GroupId
+      DestinationSecurityGroupId: !GetAtt VpcEndpointSecurityGroup.GroupId
+      IpProtocol: "-1"
+
+  PostgresSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):vpc}
+      GroupDescription: Allow inbound from Lambda
+      SecurityGroupIngress:
+        - SourceSecurityGroupId: !Ref LambdaSecurityGroup
+          IpProtocol: "-1"
+
+  DynamoDBEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Gateway
+      ServiceName: com.amazonaws.us-east-1.dynamodb
+      VpcId: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):vpc}
+      RouteTableIds: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):routeTables}
+
+  S3Endpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Gateway
+      ServiceName: com.amazonaws.us-east-1.s3
+      VpcId: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):vpc}
+      RouteTableIds: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):routeTables}
+
+  SecretsManagerEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: com.amazonaws.us-east-1.secretsmanager
+      VpcId: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):vpc}
+      VpcEndpointType: Interface
+      SubnetIds: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):subnets}
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - !GetAtt VpcEndpointSecurityGroup.GroupId
+
+  SNSEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: com.amazonaws.us-east-1.sns
+      VpcId: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):vpc}
+      VpcEndpointType: Interface
+      SubnetIds: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):subnets}
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - !GetAtt VpcEndpointSecurityGroup.GroupId
+
+  VpcEndpointSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      VpcId: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):vpc}
+      GroupDescription: Allow Lambda into VPC Endpoints
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: !GetAtt LambdaSecurityGroup.GroupId

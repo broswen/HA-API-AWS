@@ -1,0 +1,3 @@
+Resources:
+  ExportBucket:
+    Type: AWS::S3::Bucket

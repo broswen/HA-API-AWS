@@ -1,0 +1,64 @@
+service: HA-API-AWS
+frameworkVersion: "2 || 3"
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: "20201221"
+  region: us-east-1
+  memorySize: 128
+  timeout: 3
+  vpc:
+    subnetIds: ${file(./serverless.${opt:stage, self:provider.stage, "dev"}.yaml):subnets}
+    securityGroupIds:
+      - !Ref LambdaSecurityGroup
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:UpdateItem
+          Resource:
+            - !GetAtt ExportTable.Arn
+        - Effect: Allow
+          Action: secretsmanager:GetSecretValue
+          Resource: !Ref PostgresSecret
+
+  environment:
+    POSTGRESSECRET: !Ref PostgresSecret
+    EXPORTTABLE: !Ref ExportTable
+
+functions:
+  getPayment:
+    handler: src/lambdas/GetPayment.handler
+    events:
+      - http:
+          path: /payment/{id}
+          method: get
+  submitPayment:
+    handler: src/lambdas/SubmitPayment.handler
+    events:
+      - http:
+          path: /payment
+          method: post
+  queryPayments:
+    handler: src/lambdas/QueryPayments.handler
+    events:
+      - http:
+          path: /payment
+          method: get
+
+resources:
+  - ${file(./cfn-resources/iam-resources.yaml)}
+  - ${file(./cfn-resources/rds-resources.yaml)}
+  - ${file(./cfn-resources/s3-resources.yaml)}
+  - ${file(./cfn-resources/secretsmanager-resources.yaml)}
+  - ${file(./cfn-resources/sns-resources.yaml)}
+  - ${file(./cfn-resources/vpc-resources.yaml)}
+  - ${file(./cfn-resources/dynamodb-resources.yaml)}

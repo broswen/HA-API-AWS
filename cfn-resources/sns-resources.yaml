@@ -1,0 +1,7 @@
+Resources:
+  SupportTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: ${file(./serverless.${opt:stage, self:provider.stage, "dev"}.yaml):supportEmail}
+          Protocol: email

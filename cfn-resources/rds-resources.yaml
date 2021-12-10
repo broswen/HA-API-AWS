@@ -1,0 +1,38 @@
+Resources:
+  PostgresDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: RDS Postgres subnets
+      SubnetIds: ${file(serverless.${opt:stage, self:provider.stage, "dev"}.yaml):subnets}
+
+  PostgresInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: postgres
+      AllocatedStorage: "20"
+      DBInstanceClass: db.t3.micro
+      DBSubnetGroupName: !Ref PostgresDBSubnetGroup
+      MasterUsername:
+        !Join [
+          "",
+          [
+            "{{resolve:secretsmanager:",
+            !Ref PostgresSecret,
+            ":SecretString:username}}",
+          ],
+        ]
+      MasterUserPassword:
+        !Join [
+          "",
+          [
+            "{{resolve:secretsmanager:",
+            !Ref PostgresSecret,
+            ":SecretString:password}}",
+          ],
+        ]
+      MultiAZ: false
+      Port: "5432"
+      PubliclyAccessible: false
+      StorageType: gp2
+      VPCSecurityGroups:
+        - !Ref PostgresSecurityGroup

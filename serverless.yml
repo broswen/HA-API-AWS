@@ -33,6 +33,8 @@ provider:
   environment:
     POSTGRESSECRET: !Ref PostgresSecret
     EXPORTTABLE: !Ref ExportTable
+    # DATABASE_URL: postgresql://postgres:s(m#m8io35=H4t&k@hptd579okooof9.cqqa8cdynbns.us-east-1.rds.amazonaws.com:5432/postgres?schema=public"
+    DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres?schema=public
 
 functions:
   getPayment:

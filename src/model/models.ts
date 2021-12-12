@@ -14,11 +14,7 @@ export interface GetPaymentCommandInput {
 }
 
 export interface GetPaymentCommandOutput {
-  id: string
-  source: string
-  destination: string
-  amount: number
-  date: Date
+  payment: Payment | null
 }
 
 export interface QueryPaymentCommandInput {

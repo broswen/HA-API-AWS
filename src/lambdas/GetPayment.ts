@@ -1,13 +1,19 @@
 "use strict";
 
 import { APIGatewayProxyEventV2 } from "aws-lambda"
+import { connect } from "../repository/db";
 import { getRDSSecret, RDSSecret } from "../secret/secrets";
 import { PaymentService } from "../service/PaymentService";
 
-
-const paymentService: PaymentService = new PaymentService()
+let paymentService: PaymentService
 module.exports.handler = async (event: APIGatewayProxyEventV2) => {
-  // const credentials: RDSSecret = await getRDSSecret(process.env.POSTGRESSECRET ?? '')
+  if (paymentService === undefined) {
+    console.log('connecting pg')
+    const client = await connect()
+    console.log('creating payment service')
+    paymentService = new PaymentService(client)
+  }
+
   if (!event.pathParameters?.id) {
     return {
       statusCode: 400,
@@ -16,8 +22,9 @@ module.exports.handler = async (event: APIGatewayProxyEventV2) => {
   }
 
   const id = event.pathParameters.id
-
+  console.log(`finding payment: ${id}`)
   const paymentOutput = await paymentService.GetPayment({ id })
+  console.log(paymentOutput)
 
   if (!paymentOutput.payment) {
     return {

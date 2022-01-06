@@ -1,4 +1,3 @@
-import { Client } from "pg"
 import { PostPaymentCommandInput, GetPaymentCommandOutput, PostPaymentCommandOutput, QueryPaymentCommandInput, QueryPaymentCommandOutput, GetPaymentCommandInput, Payment } from "../model/models"
 import { v4 as uuidv4 } from 'uuid'
 import { getPool } from "../repository/db"
@@ -11,8 +10,6 @@ export interface PaymentService {
 }
 
 export class PaymentService implements PaymentService {
-  constructor() {
-  }
 
   async GetPayment(input: GetPaymentCommandInput): Promise<GetPaymentCommandOutput> {
     const pool = await getPool()

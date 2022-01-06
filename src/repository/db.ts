@@ -1,8 +1,6 @@
 "use strict"
-import { Client, Pool } from 'pg'
+import { Pool } from 'pg'
 import { getRDSSecret, RDSSecret } from "../secret/secrets"
-
-
 
 let secret: RDSSecret | undefined
 let pool: Pool

@@ -1,7 +1,7 @@
 "use strict";
 
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { Payment } from "../model/models";
+import { Payment, validatePayment } from "../model/models";
 import { PaymentService } from "../service/PaymentService";
 
 
@@ -20,6 +20,15 @@ module.exports.handler = async (event: APIGatewayProxyEventV2) => {
   }
 
   const payment = JSON.parse(event.body) as Payment
+
+  if (!validatePayment(payment)) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        errors: validatePayment.errors
+      })
+    }
+  }
 
   const postOutput = await paymentService.PostPayment(payment)
 

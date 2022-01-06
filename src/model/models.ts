@@ -1,8 +1,13 @@
+import Ajv, { JSONSchemaType } from 'ajv'
+import addFormats from 'ajv-formats'
+const ajv = new Ajv()
+addFormats(ajv)
+
 export interface PostPaymentCommandInput {
   source: string
   destination: string
   amount: number
-  date: Date
+  date: string
 }
 
 export interface PostPaymentCommandOutput {
@@ -36,5 +41,20 @@ export interface Payment {
   source: string
   destination: string
   amount: number
-  date: Date
+  date: string
 }
+
+const paymentSchema: JSONSchemaType<Payment> = {
+  type: 'object',
+  properties: {
+    id: { type: 'string' },
+    source: { type: 'string', minLength: 1 },
+    destination: { type: 'string', minLength: 1 },
+    amount: { type: 'number', exclusiveMinimum: 0 },
+    date: { type: 'string', format: 'date' },
+  },
+  required: ['source', 'destination', 'amount', 'date'],
+  additionalProperties: false
+}
+
+export const validatePayment = ajv.compile(paymentSchema)

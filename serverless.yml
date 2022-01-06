@@ -14,7 +14,7 @@ provider:
   timeout: 3
   stage: ${opt:stage, 'dev'}
   vpc:
-    subnetIds: ${file(./serverless.${opt:stage, self:provider.stage, "dev"}.yaml):subnets}
+    subnetIds: ${file(./serverless.${opt:stage, self:provider.stage}.yaml):subnets}
     securityGroupIds:
       - !Ref LambdaSecurityGroup
   iam:

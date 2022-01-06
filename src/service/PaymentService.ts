@@ -1,6 +1,7 @@
 import { Client } from "pg"
 import { PostPaymentCommandInput, GetPaymentCommandOutput, PostPaymentCommandOutput, QueryPaymentCommandInput, QueryPaymentCommandOutput, GetPaymentCommandInput, Payment } from "../model/models"
 import { v4 as uuidv4 } from 'uuid'
+import { getPool } from "../repository/db"
 
 
 export interface PaymentService {
@@ -10,13 +11,12 @@ export interface PaymentService {
 }
 
 export class PaymentService implements PaymentService {
-  client: Client
-  constructor(client: Client) {
-    this.client = client
+  constructor() {
   }
 
   async GetPayment(input: GetPaymentCommandInput): Promise<GetPaymentCommandOutput> {
-    const result = await this.client.query('select * from payment where id = $1 limit 1;', [input.id])
+    const pool = await getPool()
+    const result = await pool.query('select * from payment where id = $1 limit 1;', [input.id])
     if (result.rowCount < 1) {
       return {
         payment: null
@@ -36,8 +36,9 @@ export class PaymentService implements PaymentService {
   }
 
   async PostPayment(input: PostPaymentCommandInput): Promise<PostPaymentCommandOutput> {
+    const pool = await getPool()
     const id = uuidv4()
-    const result = await this.client.query('insert into payment (id, source, destination, amount ,date) values ($1, $2, $3, $4, $5);',
+    const result = await pool.query('insert into payment (id, source, destination, amount ,date) values ($1, $2, $3, $4, $5);',
       [id, input.source, input.destination, input.amount, input.date])
 
     if (result.rowCount < 1) {
@@ -50,7 +51,8 @@ export class PaymentService implements PaymentService {
   }
 
   async QueryPayment(input: QueryPaymentCommandInput): Promise<QueryPaymentCommandOutput> {
-    const result = await this.client.query('select * from payment where source = $1 limit $2 offset $3;',
+    const pool = await getPool()
+    const result = await pool.query('select * from payment where source = $1 limit $2 offset $3;',
       [input.source, input.limit, input.offset])
 
     const payments = result.rows.map(row => ({

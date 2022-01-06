@@ -5,18 +5,21 @@ export interface RDSSecret {
   engine: string
   port: number
   host: string
+  dbname: string
   username: string
 }
 
 const smClient: SecretsManagerClient = new SecretsManagerClient({})
 export async function getRDSSecret(arn: string): Promise<RDSSecret> {
   if (process.env.STAGE === 'local') {
+    console.log('returning local test credentials')
     return {
       password: 'password',
       engine: '',
       port: 5432,
       host: 'localhost',
-      username: 'postgres',
+      dbname: 'postgres',
+      username: 'postgres'
     }
   }
   const getSecretInput: GetSecretValueCommandInput = {
@@ -30,6 +33,7 @@ export async function getRDSSecret(arn: string): Promise<RDSSecret> {
       engine: '',
       port: 0,
       host: '',
+      dbname: '',
       username: '',
     }
   }

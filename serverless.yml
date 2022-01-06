@@ -39,18 +39,21 @@ provider:
 functions:
   getPayment:
     handler: src/lambdas/GetPayment.handler
+    reservedConcurrency: 2
     events:
       - http:
           path: /payment/{id}
           method: get
   submitPayment:
     handler: src/lambdas/SubmitPayment.handler
+    reservedConcurrency: 2
     events:
       - http:
           path: /payment
           method: post
   queryPayments:
     handler: src/lambdas/QueryPayments.handler
+    reservedConcurrency: 2
     events:
       - http:
           path: /payment
